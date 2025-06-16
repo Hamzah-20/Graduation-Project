@@ -22,13 +22,13 @@
         
         <div class="containe">
     <img src="<%= userData.profileimage %>" alt="Photo" style="margin: 50px 0 0 120px;">
-    <h1 style="font-size: 50px; margin: 35px 0 0 0;"><%= userData.fname %> <%= userData.lname %> </h1>
+     <h1 style="font-size: 50px; margin: 35px 0 0 0;"><%= userData.fname %> <%= userData.lname %> </h1>
 </div>
 
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-1 fixed-top">
     <div class="container">
         <a class="navbar-brand" href="/after_login">
-            <p class="masfofa">Masfofa<span>!</span></p>
+           <p class="masfofa">Masfofa<span style="color: purple;">!</span></p>
         </a>
         <button class="navbar-toggler" 
                 type="button" 
@@ -47,6 +47,7 @@
                     </a>
                     <div class="dropdown-menu">
                         <a href="/profile-page" class="dropdown-item">Profile</a>
+                        
                         <a href="/logout" class="dropdown-item">Log out</a>
                     </div>
                 </li>  
@@ -133,7 +134,7 @@
                 <th> Email </th>
                 <th> <div class="container">
            <div class="wave-group">
-               <input required type="text" class="input" required value=<%= userData.email %> name="email" readonly>
+                <input required type="text" class="input" required value=<%= userData.email %> name="email" readonly>
                <span class="bar"></span>
                
            </div>
@@ -145,7 +146,7 @@
                 <th>Country</th>
                 <th> 
 
-                    <select class="custom" style="width: 450px; margin: 0 0-10px 13px ;" name="country" id="id_country" autocomplete="country" data-initial-value="JO" required>
+            <select class="custom" style="width: 450px; margin: 0 0-10px 13px ;" name="country" id="id_country" autocomplete="country" data-initial-value="JO" required>
             <option value="FF" disabled>Select a country...</option>
               <option value="Bahrain">Bahrain</option>
               <option value="Cyprus">Cyprus</option>
@@ -190,7 +191,7 @@
             <tr>
                 <th>University major</th>
                 <th>
-                  <select class="custom" style="width: 450px; margin: 0 0-10px 13px ;" name="major" id="id_major" autocomplete="major" required>
+                   <select class="custom" style="width: 450px; margin: 0 0-10px 13px ;" name="major" id="id_major" autocomplete="major" required>
                     <option value="" disabled>Select a University major...</option>
                     <option value="Computer Science" <%= userData.major === 'Computer Science' ? 'selected' : '' %>>Computer Science</option>
                     <option value="Computer Information Systems" <%= userData.major === 'Computer Information Systems' ? 'selected' : '' %>>Computer Information Systems</option>

@@ -82,9 +82,11 @@ app.use(
     store: new pgSession({
       conObject: {
         connectionString: process.env.DATABASE_URL,
+         pruneSessionInterval:  10*60 * 1000
       },
       tableName: 'user_sessions'
     }),
+    rolling: true,
     cookie: { 
       secure: false,
       maxAge: 15 * 60 * 1000
@@ -124,6 +126,7 @@ const db = new pg.Client({
   port: process.env.PG_PORT,
 });
 
+
 db.connect();
 app.use(flash());
 
@@ -145,7 +148,7 @@ app.use((req, res, next) => {
             const redirect = req.user.role === 'admin' 
               ? '/admin-login' 
               : '/login';
-            res.redirect(`${redirect}?error=Session+invalidated`);
+            res.redirect(`${redirect}?message=Session+invalidated`);
           });
         });
       } else {
@@ -608,7 +611,7 @@ app.get("/blogs", ensureAuthenticated,async (req, res) => {
 });
 
 //comment route
-app.get("/comments/:blogId",ensureAuthenticated, async (req, res) => {
+app.get("/comments/:blogId", ensureAuthenticated, async (req, res) => {
   try {
     const { blogId } = req.params;
     const result = await db.query(
@@ -619,7 +622,11 @@ app.get("/comments/:blogId",ensureAuthenticated, async (req, res) => {
               u.last_name as user_lname,
               u.profileimage as user_image,
               u.id as user_id,
-              CONCAT('/professor-profile-preview?email=', u.email) as user_profile,
+              CASE 
+                WHEN u.role = 'student' 
+                  THEN '/student-profile-preview?email=' || u.email
+                ELSE '/professor-profile-preview?email=' || u.email
+              END as user_profile,
               0 as level
           FROM comments c
           JOIN users u ON c.user_email = u.email
@@ -632,14 +639,19 @@ app.get("/comments/:blogId",ensureAuthenticated, async (req, res) => {
               u.first_name as user_fname,
               u.last_name as user_lname,
               u.profileimage as user_image,
-              u.id as user_id, 
-              CONCAT('/professor-profile-preview?email=', u.email) as user_profile,
+              u.id as user_id,
+              CASE 
+                WHEN u.role = 'student' 
+                  THEN '/student-profile-preview?email=' || u.email
+                ELSE '/professor-profile-preview?email=' || u.email
+              END as user_profile,
               ct.level + 1
           FROM comments c
           JOIN comment_tree ct ON c.parent_comment_id = ct.comment_id
           JOIN users u ON c.user_email = u.email
       )
-      SELECT * FROM comment_tree ORDER BY level, timestamp_`,
+      SELECT * FROM comment_tree
+      ORDER BY level, timestamp_`,
       [blogId]
     );
 
@@ -649,6 +661,7 @@ app.get("/comments/:blogId",ensureAuthenticated, async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
 
 // DELETE comment route
 app.delete('/comments/:id',ensureAuthenticated,async (req, res) => {
@@ -674,38 +687,48 @@ app.delete('/comments/:id',ensureAuthenticated,async (req, res) => {
   }
 });
 
-// add a new comment to a blog
 app.post("/comments", ensureAuthenticated, async (req, res) => {
   try {
-      const { blog_id, parent_comment_id, comment_text } = req.body;
-      const user = req.user;
+    const { blog_id, parent_comment_id, comment_text } = req.body;
+    const user = req.user;
 
-      if (!user) {
-          return res.status(401).json({ success: false, message: "Unauthorized" });
-      }
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
-      const result = await db.query(
-          `INSERT INTO comments (
-              blog_id, parent_comment_id, user_email, 
-              user_fname, user_lname, user_image, 
-              user_profile, comment_text
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-          [
-              blog_id,
-              parent_comment_id || null,
-              user.email,
-              user.first_name,
-              user.last_name,
-              user.profileimage,
-              `/professor-profile-preview?email=${user.email}`,
-              comment_text
-          ]
-      );
+    const profilePath =
+      user.role === "student"
+        ? `/student-profile-preview?email=${encodeURIComponent(user.email)}`
+        : `/professor-profile-preview?email=${encodeURIComponent(user.email)}`;
 
-      res.json({ success: true, comment: result.rows[0] });
+    const result = await db.query(
+      `INSERT INTO comments (
+         blog_id,
+         parent_comment_id,
+         user_email,
+         user_fname,
+         user_lname,
+         user_image,
+         user_profile,
+         comment_text
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING *`,
+      [
+        blog_id,
+        parent_comment_id || null,
+        user.email,
+        user.first_name,
+        user.last_name,
+        user.profileimage,
+        profilePath,
+        comment_text,
+      ]
+    );
+
+    res.json({ success: true, comment: result.rows[0] });
   } catch (error) {
-      console.error("Add comment error:", error);
-      res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Add comment error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
@@ -752,7 +775,7 @@ const isAdmin = (req, res, next) => {
   if (req.isAuthenticated() && req.user.role === 'admin') {
     return next();
   }
-  res.redirect("/admin-login?error=Admin+access+required");
+  res.redirect("/admin-login?message=Admin+access+required");
 };
 
 //admin page route
@@ -811,38 +834,37 @@ app.get("/admin-page3", isAdmin,async (req, res) => {
   res.render("admin-page3", { userData , Email: Email.rows});
 });
 
-//admin login page route
-app.post("/login_admin",
-  passport.authenticate('admin-local', {
-    failureRedirect: '/admin-login?error=Invalid+credentials',
-    failureFlash: true
-  }),
-  async (req, res) => {
+app.post("/login_admin", (req, res, next) => {
+  passport.authenticate('admin-local', async (err, user, info) => {
+    if (err || !user) {
+      return res.redirect('/admin-login?message=Invalid+credentials');
+    }
+
     try {
-      // Check for existing sessions
+      // Check if user has an active session (excluding this one)
       const result = await db.query(
         `SELECT COUNT(*) FROM user_sessions 
-         WHERE sess -> 'passport' -> 'user' ->> 'id' = $1 
-         AND sid != $2`,
-        [req.user.id, req.sessionID]
+         WHERE sess -> 'passport' -> 'user' ->> 'id' = $1`,
+        [user.id]
       );
 
-      if (result.rows[0].count > 0) {
-        req.logout((err) => {
-          if (err) console.error("Logout error:", err);
-          return res.redirect('/admin-login?error=Already+logged+in+elsewhere');
-        });
-      } else {
+      if (parseInt(result.rows[0].count) > 0) {
+        return res.redirect('/admin-login?message=Already+logged+in+elsewhere');
+      }
+
+      // Proceed with login
+      req.login(user, (err) => {
+        if (err) return next(err);
         req.session.save(() => {
           res.redirect("/admin-page");
         });
-      }
+      });
     } catch (err) {
-      console.error("Session check error:", err);
-      res.redirect('/admin-login?error=Internal+error');
+      console.error("Login session check error:", err);
+      return res.redirect('/admin-login?message=Internal+error');
     }
-  }
-);
+  })(req, res, next);
+});
 
 // Add college or university route (PostgreSQL version)
 app.post('/institutions', async (req, res) => {
@@ -852,13 +874,20 @@ app.post('/institutions', async (req, res) => {
     }
 
     try {
-      const { institutionType, facultyName, universityCode } = req.body;
-      const imagePath = req.file ? req.file.path.replace(/\\/g, '/').replace('public/', '') : null;
+      // ناخد القيم من البدي ونحولها للـ lowercase
+      let { institutionType, facultyName, universityCode } = req.body;
+      universityCode   = universityCode.trim().toLowerCase();
+      facultyName      = facultyName.trim().toLowerCase();
+      institutionType  = institutionType.trim();
+
+      const imagePath = req.file
+        ? req.file.path.replace(/\\/g, '/').replace('public/', '')
+        : null;
 
       // Validate required fields
       const missingFields = [];
       if (!institutionType) missingFields.push('institutionType');
-      if (!facultyName) missingFields.push('facultyName');
+      if (!facultyName)    missingFields.push('facultyName');
       if (!universityCode) missingFields.push('universityCode');
       
       if (missingFields.length > 0) {
@@ -868,7 +897,7 @@ app.post('/institutions', async (req, res) => {
       }
 
       if (institutionType === 'University') {
-        // Check if university code exists
+        // بنقارن بالكود اللي طلعنا lower-case
         const universityResult = await db.query(
           'SELECT university_code FROM university WHERE university_code = $1',
           [universityCode]
@@ -878,9 +907,10 @@ app.post('/institutions', async (req, res) => {
           return res.status(409).json({ error: 'University code already exists' });
         }
 
-        // Insert new university
         await db.query(
-          'INSERT INTO university (university_code, university_name, university_image) VALUES ($1, $2, $3)',
+          `INSERT INTO university 
+             (university_code, university_name, university_image) 
+           VALUES ($1, $2, $3)`,
           [universityCode, facultyName, imagePath]
         );
 
@@ -890,7 +920,7 @@ app.post('/institutions', async (req, res) => {
         });
 
       } else if (institutionType === 'College') {
-        // Verify parent university exists
+        // نفس الشيء: نتأكد بالـ lowercase
         const universityResult = await db.query(
           'SELECT university_name FROM university WHERE university_code = $1',
           [universityCode]
@@ -900,20 +930,23 @@ app.post('/institutions', async (req, res) => {
           return res.status(404).json({ error: 'Parent university not found' });
         }
 
-        // Check for existing college
         const collegeResult = await db.query(
-          'SELECT college_name FROM college WHERE university_code = $1 AND college_name = $2',
+          `SELECT college_name 
+             FROM college 
+            WHERE university_code = $1 
+              AND college_name = $2`,
           [universityCode, facultyName]
         );
 
         if (collegeResult.rows.length > 0) {
-          return res.status(409).json({ error: 'College already exists in this university' });
+          return res.status(409).json({ error: 'College already exists' });
         }
 
-        // Insert new college
         await db.query(
-          'INSERT INTO college (university_code, college_name, college_image) VALUES ($1, $2, $3)',
-          [universityCode, facultyName, imagePath ]
+          `INSERT INTO college 
+             (university_code, college_name, college_image) 
+           VALUES ($1, $2, $3)`,
+          [universityCode, facultyName, imagePath]
         );
 
         return res.status(201).json({ 
@@ -933,6 +966,7 @@ app.post('/institutions', async (req, res) => {
     }
   });
 });
+
 
 // Get reported blogs
 app.get('/api/reported-blogs', async (req, res) => {
@@ -1326,7 +1360,7 @@ app.get("/professor-profile-preview", ensureAuthenticated, async (req, res) => {
     }
 
     const userData = {
-      result: {
+      
         fname: professor.rows[0].first_name,
         lname: professor.rows[0].last_name,
         profileimage: professor.rows[0].profileimage,
@@ -1336,8 +1370,12 @@ app.get("/professor-profile-preview", ensureAuthenticated, async (req, res) => {
         country: professor.rows[0].country,
         instagram: professor.rows[0].instagram,
         facebook: professor.rows[0].facebook,
-        whatsapp: professor.rows[0].whatsapp
-      }
+        whatsapp: professor.rows[0].whatsapp,
+        specialization: professor.rows[0].specialization,
+        major: professor.rows[0].major,
+        degree: professor.rows[0].dregee,
+        university_name: professor.rows[0].university_name
+           
     };
 
     // Data for the navbar (current user)
@@ -1349,6 +1387,54 @@ app.get("/professor-profile-preview", ensureAuthenticated, async (req, res) => {
     };
 
     res.render("professor-profile-preview", { userData, data });
+  } catch (error) {
+    console.error("Profile error:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+//student profile preview route
+app.get("/student-profile-preview", ensureAuthenticated, async (req, res) => {
+  try {
+    const email = req.query.email;
+    if (!email) return res.status(400).send("Missing email parameter");
+
+    const professor = await db.query(
+      "SELECT * FROM users WHERE email = $1", 
+      [email]
+    );
+
+    if (professor.rows.length === 0) {
+      return res.status(404).send("Professor not found");
+    }
+
+    const userData = {
+      
+        fname: professor.rows[0].first_name,
+        lname: professor.rows[0].last_name,
+        profileimage: professor.rows[0].profileimage,
+        email: professor.rows[0].email,
+        discription: professor.rows[0].discription, // Note: fixed typo from "discription" to "description"
+        city: professor.rows[0].city,
+        country: professor.rows[0].country,
+        instagram: professor.rows[0].instagram,
+        facebook: professor.rows[0].facebook,
+        whatsapp: professor.rows[0].whatsapp,
+        specialization: professor.rows[0].specialization,
+        major: professor.rows[0].major,
+        degree: professor.rows[0].dregee,
+        university_name: professor.rows[0].university_name
+           
+    };
+    // Data for the navbar (current user)
+    const data = {
+      fname: req.user.first_name,
+      lname: req.user.last_name,
+      profileimage: req.user.profileimage,
+      role: req.user.role || 'guest'
+    };
+
+    res.render("student-profile-preview", { userData, data });
   } catch (error) {
     console.error("Profile error:", error);
     res.status(500).send("Server error");
@@ -1417,6 +1503,104 @@ app.post("/save-blog", uploadBlogImage.single('blog_image'),ensureAuthenticated,
       message: error.message || "Internal server error"
     });
   }
+});
+// Error handling middleware for multer
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    // Multer-specific errors
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  } else if (err) {
+    // Custom errors (مثل unsupported file type)
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  }
+  next();
+});
+
+//students save blog route
+app.post("/save-blogs", uploadBlogImage.single('blog_image'),ensureAuthenticated, async (req, res) => {
+  try {
+    // Validate required fields
+    if (!req.body.blog_title || !req.body.blog_content) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Blog title and content are required"
+      });
+    }
+
+    const { blog_title, blog_content } = req.body;
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({ 
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    // Determine the image path if a file was uploaded
+    let blogImagePath = null;
+    if (req.file) {
+      blogImagePath = '/uploads/blog_images/' + req.file.filename;
+    }
+
+    const profileUrl = `/student-profile-preview?email=${user.email}`;
+    
+    const result = await db.query(
+      `INSERT INTO blogs (
+        user_email, user_fname, user_lname, user_image,
+        blog_title, blog_content, blog_image, user_role,
+        university_code, college_name, user_profile
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      [
+        user.email,
+        user.first_name,
+        user.last_name,
+        user.profileimage,
+        blog_title,
+        blog_content,
+        blogImagePath,
+        user.role,
+        user.role === 'professor' ? req.body.uni_code : 'ahu',
+        user.role === 'professor' ? req.body.col_name : 'Information technology',
+        profileUrl
+      ]
+    );
+
+    res.json({ 
+      success: true, 
+      blog: result.rows[0] 
+    });
+
+  } catch (error) {
+    console.error("Save blog error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message || "Internal server error"
+    });
+  }
+});
+// Error handling middleware for multer
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    // Multer-specific errors
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  } else if (err) {
+    // Custom errors (مثل unsupported file type)
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  }
+  next();
 });
 
 // Delete blog post route
@@ -1588,10 +1772,10 @@ app.get("/major-plan", ensureAuthenticated, (req, res) => {
     res.render("major-cs", { userData });
   } 
   else if (major === "Computer Information Systems") {
-    res.render("major-mis", { userData });
+    res.render("major-sw", { userData });
   } 
   else if (major === "Software Engineering") {  
-    res.render("major-sw", { userData });
+    res.render("major-mis", { userData });
   }
   else if (major === "Data Science and Artificial Intelligence") {  
     res.render("major-ai", { userData });
@@ -1691,26 +1875,25 @@ app.get('/api/users', async (req, res) => {
 
 // Ban a user
 app.post('/ban', async (req, res) => {
-  const { email, ban_reason } = req.body;
-  const ban_by = req.user.id; // Get admin's email from session
+  const { email, banReason } = req.body;
+  const ban_by = req.user.id;
 
   try {
     await db.query(
       'INSERT INTO Ban_users (email, ban_reason, ban_by) VALUES ($1, $2, $3)',
-      [email, ban_reason, ban_by]
+      [email, banReason, ban_by]
     );
-    await db.query(
-      'delete FROM users WHERE email = $1',
-      [email]);
-    res.json({ message: 'User banned successfully' });
+    await db.query('DELETE FROM users WHERE email = $1', [email]);
+    res.json({ success: true, message: 'User banned successfully' });
   } catch (err) {
     if (err.code === '23505') {
-      res.status(409).json({ error: 'User already banned' });
+      res.status(409).json({ success: false, message: 'User already banned' });
     } else {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ success: false, message: 'Internal server error' });
     }
   }
 });
+
 
 // Get all subjects route
 app.get('/api/subjects', async (req, res) => {
@@ -1918,13 +2101,14 @@ app.get("/professor-research-upload", ensureAuthenticated, (req, res) => {
   const profileimage = req.user.profileimage;
   const role = req.user.role;
   const email = req.user.email;
+  const error = '';
   const userData = {
     fname: first_name,
     profileimage: profileimage,
     role: role,
     email: email
   };
-  res.render("professor-research-upload", { userData });
+  res.render("professor-research-upload", { userData,error });
 });
 
 // professor research upload endpoint
@@ -1936,7 +2120,10 @@ app.post(
 
       // Validate required fields
       if (!title || !status || !req.file) {
-        return res.status(400).send('Title, status, and file are required');
+  return res.render("professor-research-upload", {
+  error: "Please fill in all required fields and upload a file",
+  userData: req.user
+});
       }
 
       // Construct file path (relative to public directory)
@@ -2351,8 +2538,8 @@ app.post("/reset-password",  async (req, res) => {
   try {
     const { email } = req.body;
     const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-    
-    if (result.rows.length > 0) {
+    const adminResult = await db.query("SELECT * FROM admin WHERE admin_email = $1", [email]);
+    if (result.rows.length > 0 || adminResult.rows.length > 0) {
       // Generate a random 6-digit code
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       
@@ -2445,23 +2632,36 @@ app.post("/verify-code", async (req, res) => {
 
 //password confirmation route
 app.post("/password-confirm", async (req, res) => {
-  const { password } = req.body; // Changed from newPassword to password
+  const { password } = req.body;
   const email = req.query.email;
-  
+
   if (!email || !password) {
     return res.status(400).json({ success: false, message: "Email and password are required" });
   }
 
   try {
+    const res2 = await db.query("SELECT * FROM admin WHERE admin_email = $1", [email]);
+
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    await db.query("UPDATE users SET password = $1 WHERE email = $2", [hashedPassword, email]);
-    delete verificationCodes[email];
-    res.redirect("/login");
+
+    if (res2.rows.length > 0) {
+      // Admin
+      await db.query("UPDATE admin SET admin_password = $1 WHERE admin_email = $2", [hashedPassword, email]);
+      delete verificationCodes[email];
+      res.redirect("/admin-login");
+    } else {
+      // Regular user
+      await db.query("UPDATE users SET password = $1 WHERE email = $2", [hashedPassword, email]);
+      delete verificationCodes[email];
+      res.redirect("/login");
+    }
+
   } catch (error) {
     console.error("Error updating password:", error);
     res.status(500).json({ success: false, message: "Error updating password" });
   }
 });
+
 
 //edit profile route for students
 app.post("/edit-profile", ensureAuthenticated, (req, res) => {
@@ -2657,7 +2857,7 @@ app.post("/login_prof", (req, res, next) => {
         return res.redirect("/login?message=Already+logged+in+elsewhere");
       }
 
-      // 2. ما في جلسة سابقة ⇒ نسمح بالدخول
+     
       req.logIn(user, async (err) => {
         if (err) return next(err);
 
@@ -2700,23 +2900,22 @@ app.get("/educational-reference",ensureAuthenticated, async (req, res) => {
     // Fetch subject data
     const result = await db.query("SELECT * FROM educational_resources WHERE subject = $1 AND resource_type = $2", [subject,type]);
     
-    if (result.rows.length === 0) {
-      return res.status(404).send("Subject not found");
-    }
+    
 
-    const course = result.rows[0];
+const course = result.rows[0] || {}; 
     const profileimage = req.user.profileimage;   
     
     // Prepare user data
-    const userData = {
-      sub: course.subject,
-      brief: course.subject_brief, 
-      path_: course.file_path,
-      role: req.user.role,
-      fname: req.user.first_name,
-      profileimage: profileimage,
-    };
-    
+  const userData = {
+  sub: course.subject || subject, 
+  brief: course.subject_brief || "No description available",
+  path_: course.file_path || "#", 
+  role: req.user.role,
+  fname: req.user.first_name,
+  profileimage: profileimage,
+  resources: result.rows,
+message: result.rows.length === 0 ? "No materials available for this subject." : null,
+  type: type}
     res.render("educational-reference", { userData });
   } catch (error) {
     console.error("Error in /primary-references:", error);
@@ -2757,6 +2956,15 @@ app.get(
 app.post("/registration", async (req, res) => {
 const { first_name, last_name, email, password, role, major, degree, university, college } = req.body;  
   try {
+    // Validate if he is banned
+    const banCheck = await db.query("SELECT * FROM Ban_users WHERE email = $1", [email]);
+    if (banCheck.rows.length > 0) {
+      return res.status(403).json({ 
+        error: "This account has been banned. Please use a different email.",
+        banned: true,
+        redirect: null
+      });
+    }
     // Check if email already exists
     const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
     
@@ -2913,7 +3121,7 @@ app.post("/verify-email", async (req, res) => {
           }
           
           verificationcodes.delete(email);
-          return res.status(200).json({ success: true, redirect: "/" });
+          return res.status(200).json({ success: true, redirect: "/after_login" });
         });
 
       } catch (err) {
@@ -3019,18 +3227,17 @@ passport.use('admin-local', new LocalStrategy(
 
       const admin = adminResult.rows[0];
       
-      // 2. Compare plain text password (NO bcrypt)
-      if (password !== admin.admin_password) {
-        return cb(null, false, { message: 'Invalid credentials' });
-      }
+      // 2. Verify password
+      const valid = await bcrypt.compare(password, admin.admin_password);
+      if (!valid) return cb(null, false, { message: 'Invalid credentials' });
 
       // 3. Create user-like object
       const user = {
         id: admin.admin_id,
         email: admin.admin_email,
         name: admin.admin_name,
-        role: 'admin',
-        isAdmin: true
+        role: 'admin', // Critical for role checks
+        isAdmin: true  // Optional flag
       };
 
       return cb(null, user);
@@ -3039,7 +3246,6 @@ passport.use('admin-local', new LocalStrategy(
     }
   }
 ));
-
 
 // Handle 404 Not Found
 app.use((req, res, next) => {

@@ -80,20 +80,29 @@
         <section class="midell d-flex justify-content-top align-items-center flex-column" style="height: 800px;">
 
         	<fieldset style="border-color: #f5f5dc;" class="d-flex  align-items-center flex-column media">
-        <div class="content">
-            <h1 Align="center"><%= userData?.sub || 'Subject Not Found' %></h1>
-              <br /> 
-        </div>
+<div class="content">
+    <h1 Align="center"><%= userData?.sub || 'Subject Not Found' %></h1>
 
-            <div class="text-box">
-                <h3 Align="center"><%= userData?.brief || 'No description available' %></h3>
-            </div>
-           
-              </div>
-                <div class="text-box">
-                    <h4>To obtain the material for this Subject</h4>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <h5>Click<a href="<%= userData.path_ %>" download> here </a>!</h5>   
-                </div>
+    <% if (userData.message) { %>
+        <div class="alert alert-warning text-center mt-3" role="alert">
+            <%= userData.message %>
+        </div>
+    <% } %>
+
+    <br /> 
+</div>
+
+<div class="text-box">
+    <h3 Align="center"><%= userData?.brief || 'No description available' %></h3>
+</div>
+
+<% if (userData.resources && userData.resources.length > 0) { %>
+    <div class="text-box">
+        <h4>To obtain the material for this Subject</h4>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+        <h5>Click <a href="<%= userData.path_ %>" download>here</a>!</h5>
+    </div>
+<% } %>
+
 
                 <br />
     </fieldset>

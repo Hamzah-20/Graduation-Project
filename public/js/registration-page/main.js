@@ -144,13 +144,16 @@ if (formData.role === 'professor') {
 
                 if (response.ok) {
                     openModal();
+               
                 } else {
-                    if (data.redirect) {
-                        window.location.href = data.redirect;
-                    } else {
-                        alert(data.error || 'Failed to send verification email');
-                    }
-                }
+    if (data.redirect) {
+        window.location.href = data.redirect;
+    } else {
+        showErrorModal(data.error || 'Failed to send verification email');
+    }
+}
+
+                
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred. Please try again.');
@@ -632,3 +635,8 @@ function validateForm() {
 
 
 });
+function showErrorModal(message) {
+  document.getElementById("errorModalMessage").textContent = message;
+  const modal = new bootstrap.Modal(document.getElementById("errorModal"));
+  modal.show();
+}

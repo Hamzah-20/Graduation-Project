@@ -33,6 +33,7 @@
                         </a>
                         <div class="dropdown-menu">
                             <a href="/profile-page">Profile</a>
+                           
                             <a href="/logout">Log out</a>
                         </div>
                     </li>  
@@ -457,11 +458,12 @@
                 document.getElementById('offcanvasContent').innerHTML = `
                     <p><strong>Description:</strong> ${course.description}</p>
                     ${course.content}
-                    <div class="mt-3">
-                        <a class="btn btn-sm" style="background-color:#7495ED; color: aliceblue;" href="/mawad-page?subject=${encodeURIComponent(courseName)}">Videos</a>
-                        <a class="btn btn-sm" style="background-color:#7495ED; color: aliceblue;" href="/mawad-page?subject=${encodeURIComponent(courseName)}">Primary references</a>
-                        <a class="btn btn-sm" style="background-color:#7495ED; color: aliceblue;" href="/mawad-page?subject=${encodeURIComponent(courseName)}">Summary</a>
-                    </div>
+                   <div class="mt-3">
+    <a class="btn btn-sm" style="background-color:#7495ED; color: aliceblue;" href="/educational-reference?subject=${encodeURIComponent(courseName)}&type=video">Videos</a>
+    <a class="btn btn-sm" style="background-color:#7495ED; color: aliceblue;" href="/educational-reference?subject=${encodeURIComponent(courseName)}&type=primary_reference">Primary references</a>
+    <a class="btn btn-sm" style="background-color:#7495ED; color: aliceblue;" href="/educational-reference?subject=${encodeURIComponent(courseName)}&type=summary">Summary</a>
+</div>
+
                     <div class="progress-status mt-2">
                         <small>${this.classList.contains('done') ? 'Completed' : 'Not completed'}</small>
                     </div>

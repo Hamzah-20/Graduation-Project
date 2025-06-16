@@ -1,21 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
-    let isSearching = false;
-    
-    // Tab functionality
+  let isSearching = false;
     function setActiveTab(tabId) {
         const tab = document.querySelector(`#yearTabs a[href="#${tabId}"]`);
         if (tab) {
             document.querySelectorAll('#yearTabs .nav-link').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('show', 'active'));
-            const activePane = document.querySelector(`#${tabId}`);
+             const activePane = document.querySelector(`#${tabId}`);
             if (activePane) {
                 activePane.classList.add('show', 'active');
             }
         }
     }
-
-    function showNoResultsMessage(container) {
+ function showNoResultsMessage(container) {
         container.innerHTML = `
             <div class="col-12 text-center py-4 no-results-message">
                 <img src="/images/Publications-page/error.png" alt="No results" style="max-width: 200px;">
@@ -24,16 +21,14 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
     }
-
-    function filterMaterials(searchTerm = '') {
+function filterMaterials(searchTerm = '') {
         let hasVisibleResults = false;
         const activeTab = document.querySelector('.tab-pane.active');
         if (!activeTab) return;
 
         const materials = activeTab.querySelectorAll('.col-md-3.col-sm-6.mb-2');
-        
         materials.forEach(material => {
-            const materialTitle = material.querySelector('.card-title')?.textContent.toLowerCase() || '';
+ const materialTitle = material.querySelector('.card-title')?.textContent.toLowerCase() || '';
             const matchesSearch = materialTitle.includes(searchTerm.toLowerCase());
 
             if (matchesSearch) {
@@ -43,8 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 material.style.display = 'none';
             }
         });
-
-        // Only show no results message if we're actively searching
+     // Only show no results message if we're actively searching
         if (!hasVisibleResults && isSearching) {
             const noResultsContainer = document.createElement('div');
             noResultsContainer.className = 'col-12 no-results-message';
@@ -65,14 +59,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
-    // Initialize with saved preferences
+ // Initialize with saved preferences
     const savedTab = localStorage.getItem('selectedTab') || 'year1';
+   
     setActiveTab(savedTab);
-    // Initial filter without showing no-results message
+    
+   
+ // Initial filter without showing no-results message
     filterMaterials();
-
-    // Tab event listeners
     document.querySelectorAll('#yearTabs a').forEach(tab => {
         tab.addEventListener('shown.bs.tab', function(event) {
             const tabId = event.target.getAttribute('href').substring(1);
@@ -82,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Search box event listener
+// Search box event listener
     const searchBox = document.querySelector('.box input[name="search"]');
     if (searchBox) {
         searchBox.addEventListener('input', function(event) {
@@ -90,13 +84,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const searchTerm = event.target.value.trim();
             filterMaterials(searchTerm);
         });
-        
+         
         // Also check when search box loses focus
         searchBox.addEventListener('blur', function(event) {
             isSearching = event.target.value.trim().length > 0;
         });
     }
-});
+    });
+
+
+
 
 // Your existing project-related functions remain the same
 async function fetchProjectsFromDatabase(semester) {
@@ -112,7 +109,7 @@ async function fetchProjectsFromDatabase(semester) {
     }
 }
 
-function createProjectCard(project) {
+    function createProjectCard(project) {
     return `
         <div class="col-md-3 col-sm-6 mb-2" data-major="computer-science software-engineering management-information-systems data-science-and-artificial-intelligence">
             <div class="card p-2 text-start" style="min-height: 150px;">
@@ -124,29 +121,35 @@ function createProjectCard(project) {
 }
 
 async function populateSemesterProjects(semesterId) {
+    // 1. Determine container ID based on semester
     const containerId = semesterId === 'year1' ? 'DocPreparedResearches' : 
                       semesterId === 'year2' ? 'DocOngoingResearchWork' : 
                       'NoProjectsWork';
     
+    // 2. Get the container element
     const container = document.getElementById(containerId);
     if (!container) return;
-    
-    container.innerHTML = '<div class="col-12 text-center py-4">Loading projects...</div>';
-    
+
     try {
+        // 3. Fetch projects from database
         const projects = await fetchProjectsFromDatabase(semesterId);
         
+        // 4. Clear container
         container.innerHTML = '';
         
-        if (projects.length === 0) {
+        // 5. Handle no projects case
+        if (!projects || projects.length === 0) {
             container.innerHTML = '<div class="col-12 text-center py-4">No research has been uploaded yet.</div>';
             return;
         }
-        
+
+        // 6. Create and append project cards
+        let cardsHTML = '';
         for (let i = 0; i < projects.length; i++) {
             const project = projects[i];
-            container.innerHTML += createProjectCard(project);
+            cardsHTML += createProjectCard(project);
         }
+        container.innerHTML = cardsHTML;
         
     } catch (error) {
         console.error('Error loading projects:', error);

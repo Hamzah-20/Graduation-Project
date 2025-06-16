@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchIcon = document.querySelector('.box a');
     const professorCards = professorsGrid ? Array.from(professorsGrid.querySelectorAll('.professor-card')) : [];
     const noFacultyDiv = document.querySelector('.no-faculty-members');
-    
-    // Function to create the no-results element
+   
+// Function to create the no-results element
     function createNoResultsElement() {
         const noResultsDiv = document.createElement('div');
         noResultsDiv.className = 'no-results text-center w-100 py-5';
@@ -21,17 +21,18 @@ document.addEventListener('DOMContentLoaded', function() {
         professorsGrid.parentNode.insertBefore(noResultsDiv, professorsGrid.nextSibling);
         return noResultsDiv;
     }
-
-    // Function to perform search with smooth transitions
+   // Function to perform search with smooth transitions
     function performSearch(noResultsDiv) {
         const searchTerm = searchBox.value.toLowerCase().trim();
         let visibleCount = 0;
 
+       
         professorCards.forEach(card => {
+           
+
             const cardText = card.textContent.toLowerCase();
             const matchesSearch = searchTerm === '' || cardText.includes(searchTerm);
-            
-            if (matchesSearch) {
+            if (matchesSearch) {   
                 card.style.display = 'block';
                 visibleCount++;
             } else {
@@ -61,12 +62,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initialize based on whether there are professors or not
+  // Initialize based on whether there are professors or not
     if (professorCards.length > 0) {
         // There are professors - set up search functionality
         const noResultsDiv = createNoResultsElement();
 
-        // Event listeners with debouncing for better performance
+    // Event listeners with debouncing for better performance
         let searchTimeout;
         searchBox.addEventListener('input', function() {
             clearTimeout(searchTimeout);
@@ -84,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Initialize search
+    // Initialize search
         performSearch(noResultsDiv);
     } else if (noFacultyDiv) {
         // No professors initially - show the "No faculty members" message
@@ -97,5 +98,4 @@ document.addEventListener('DOMContentLoaded', function() {
         searchIcon.style.opacity = '0.5';
     }
 
-    // Additional styling for no results/faculty states
 });

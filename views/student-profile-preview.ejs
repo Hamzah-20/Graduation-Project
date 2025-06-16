@@ -14,7 +14,7 @@
 <body>
 <% if (!userData) { %>
     <div class="alert alert-danger">
-      Professor profile not found
+     Student profile not found
     </div>
 <% } else { %>
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-1 fixed-top">
@@ -60,52 +60,61 @@
 
     <div class="wrapper">
         <div class="content">
-      <section class="section hero"></section>
+        <section class="section hero"></section>
 
 
       
       <section class="section gradient-blue">
         <!-------------back end user name & discription ------------------>
- <img src='<%= userData.profileimage %>' style="width: 350px; height: 350px; margin: -130px 0 0 0; -webkit-border-radius: 50%; -moz-border-radius: 50%; border-radius: 50%; -o-object-fit: cover; object-fit: cover;">                <h1 class="kk">Welcome <label><%= userData.fname %> <%= userData.lname %></label> </h1>
+        <img src='<%= userData.profileimage %>' style="width: 350px; height: 350px; margin: -130px 0 0 0; -webkit-border-radius: 50%; -moz-border-radius: 50%; border-radius: 50%; -o-object-fit: cover; object-fit: cover;">        
+        <h1 class="kk">Welcome <label><%= userData.fname %> <%= userData.lname %></label> </h1>
 
         <p> <label> <%= userData.discription %> </label> </p>
       </section>
         <!-------------------------------------------------->   
 
 <section class="section">
-    <fieldset style="border-color: #1e1e1e; width: 700px; height: 780px;">
-
+    <fieldset style="border-color: #1e1e1e; width: 770px; height: 780px;">
         <div class="content">
-            <table>
-              <tr>
-             <td class="bb"> <br /> <h1>User details</h1> <br /><br /> </td>
-
-              </tr>
+            <table >
+               <tr>
+                <td class="bb"> <br /> <h1>User details</h1> <br /><br /> </td>
+               </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th></th>
                     <th></th>
                     <!---------------------- label for the information   --------------------------------->
                 </tr>
-                <tr align="center">
-                    <td class="bb"> <h3> Name </h3> <br /> <h4> <label><%= userData.fname %> <%= userData.lname %></label> </h4> <br /><br /> </td>
-                 <td class="bb" align="center"> <h3> Email </h3> <br /><h4> <label> <%= userData.email %> </label> </h4> <br /><br /> </td>
-
+                <tr>
+                    <td class="bb"> <h3> Name </h3> <br /> <h4> <label> <%= userData.fname %> <%= userData.lname %></label> </h4> <br /><br /> </td>
+                    <td class="bb"> <h3> Country </h3> <br /> <h4> <label> <%= userData.country %></label> </h4> <br /><br /> </td>
+                    
                 </tr>
                 <tr> 
-                    <td class="bb"align="center"> <h3> City/Town  </h3> <br /> <h4> <label> <%= userData.city %> </label> </h4> <br /><br /> </td>
-                    <td class="bb" align="center"> <h3> Country </h3> <br /> <h4> <label> <%= userData.country %> </label> </h4> <br /><br /> </td>
+                    <td class="bb"> <h3> Email </h3> <br /><h4> <label> <%= userData.email %></label> </h4> <br /><br /> </td>
+                    <td class="bb"> <h3> City/Town </h3> <br /> <h4> <label> <%= userData.city %></label> </h4> <br /><br /> </td>
                 </tr>
                 <tr>
-                    <td class="bb" align="center"> <h3> University Degree  </h3> <br /> <h4> <label> <%= userData.degree %>  </label> </h4> <br /><br /> </td>
-                    <td class="bb" align="center"> <h3> University Name  </h3> <br /> <h4> <label> <%= userData.university_name  %>  </label> </h4> <br /><br /> </td>
+                    <td class="bb"> <h3> College </h3> <br /> <h4> <label> <%= userData.specialization %></label> </h4> <br /><br /> </td>
+                    
+                    <td class="bb"> <h3> University Degree </h3> <br /> <h4> <label> <%= userData.degree %></label> </h4> <br /><br /> </td>
                 </tr>
                 <tr>
-                    <td class="bb" align="center"> <h3> College Name  </h3> <br /> <h4> <label> <%= userData.specialization  %>  </label> </h4> <br /><br /> </td>
+                    <td class="bb"> <h3> University major </h3> <br /> <h4> <label> <%=userData.major %></label> </h4> <br /><br /> </td>
+                    <td class="bb"> <h3> University Name </h3> <br /> <h4> <label> <%= userData.university_name %></label> </h4> <br /><br /> </td>
                 </tr>
+                 
 
                 <!---------------------------------------------------------------------------------->
             </table>
         </div>
     </fieldset>
 </section>
+
 
 <section class="bg-dark text-light p-5 p-lg-0 p-md-0 pt-lg-5 pt-md-5 mt-3 text-center text-sm-start">
     <div class="container">

@@ -89,11 +89,7 @@
                         <a href="/student-page" class="nav-link">Student Page</a>
                     </li>  
                 </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a href="#Communication" class="nav-link">Communication</a>
-                    </li>  
-                </ul>
+               
             </div>
         </div>
     </nav>
@@ -180,8 +176,7 @@
                                 <div class="post-container" data-post-id="post-<%= blog.blog_id %>">
                                     <div class="post-row d-flex justify-content-between align-items-start">
                                         <div class="user-profile d-flex">
-                                            <a href="<%= blog.user_profile || '#' %>"><img src="<%= blog.user_image %>" style="width: 60px; height: 60px; margin-bottom: 25px;"></a>
-                                            <div>
+<a href="<%= blog.user_profile || '#' %>"><img src="<%= blog.user_image %>" style="width: 60px; height: 60px; margin-bottom: 25px;"></a>                                            <div>
                                                 <h5><%= blog.user_fname %> <%= blog.user_lname %></h5>
                                                 <p><%= blog.university_code %>, <%= blog.college_name %></p>
                                                 <p class="text-muted post-date" data-date="<%= blog.timestamp_ %>"></p>
@@ -363,9 +358,7 @@
     </div>
   </div>
 </div>
-   </div>
-
-
+</div>
    <div class="modal fade" id="customAlertModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -381,7 +374,6 @@
     </div>
   </div>
 </div>
-
         <section style="height: 100px;" class="bg-dark d-flex justify-content-center align-items-center flex-column">
             <h4 style="color: white; margin-bottom: 10px;">Made by</h4>
             <a href="/after_login" style=" text-decoration: none; color: #523DB9;">Masfofa Team</a>
@@ -464,13 +456,11 @@ async function performCommentDelete() {
   commentToDelete = null;
   bootstrap.Modal.getInstance(document.getElementById('commentDeleteModal')).hide();
 }
-
 function showAlert(message) {
   const alertModal = new bootstrap.Modal(document.getElementById('customAlertModal'));
   document.getElementById('customAlertMessage').textContent = message;
   alertModal.show();
 }
-
 // Make sure this event listener exists
 document.getElementById('confirmCommentDelete').addEventListener('click', performCommentDelete);
             // Current user ID from server-side
@@ -488,12 +478,12 @@ document.getElementById('confirmCommentDelete').addEventListener('click', perfor
                 const file = fileInput.files[0];
                 
                 if (!title) {
-                    showAlert('Please enter a ( title )');
+                     showAlert('Please enter a ( title )');
                     return;
                 }
                 
                 if (!content) {
-                    showAlert('Please enter ( blog content )');
+                   showAlert('Please enter ( blog content )');
                     return;
                 }
                 
@@ -507,7 +497,7 @@ document.getElementById('confirmCommentDelete').addEventListener('click', perfor
                         formData.append('blog_image', file);
                     }
                     
-                    const response = await fetch('/save-blog', {
+                    const response = await fetch('/save-blogs', {
                         method: 'POST',
                         body: formData
                     });
@@ -531,7 +521,7 @@ document.getElementById('confirmCommentDelete').addEventListener('click', perfor
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    showAlert('Error saving blog: ' + error.message);
+                     showAlert('Error saving blog: ' + error.message);
                 }
             });
 
@@ -590,8 +580,7 @@ document.getElementById('confirmCommentDelete').addEventListener('click', perfor
                 // Redirect to edit page or open edit modal
                 window.location.href = `/edit-blog?id=${postId}`;
             }
-
-            // Handle edit modal events
+// Handle edit modal events
 const editModal = document.getElementById('editModal');
 editModal.addEventListener('hidden.bs.modal', function () {
     // Remove the modal backdrop if it exists
@@ -603,9 +592,6 @@ editModal.addEventListener('hidden.bs.modal', function () {
     document.body.style.overflow = 'auto';
     document.body.style.paddingRight = '0';
 });
-
-            
-
             function confirmDeletePost(postId) {
                 if (confirm('Are you sure you want to delete this post?')) {
                     deletePost(postId);
@@ -631,7 +617,7 @@ editModal.addEventListener('hidden.bs.modal', function () {
                         // Remove the post from the DOM
                         document.querySelector(`.post-container[data-post-id="post-${postId}"]`).remove();
                     } else {
-                        showAlert('Error: ' + (result.message || 'Failed to delete post'));
+                       showAlert('Error: ' + (result.message || 'Failed to delete post'));
                     }
                 } catch (error) {
                     console.error('Error deleting post:', error);
@@ -704,7 +690,7 @@ editModal.addEventListener('hidden.bs.modal', function () {
                             <div class="comment" id="comment-${comment.comment_id}" style="margin-left: ${margin}px">
                                 <div class="user-profile d-flex align-items-center p-2">
                                     <a href="${comment.user_profile}" class="profile-link">
-                                        <img src="${comment.user_image}" class="rounded-circle me-2" width="32" style="width: 50px; height: 50px; margin: 15px 0 0 0 ; ">
+                                       <img src="${comment.user_image}" class="rounded-circle me-2" width="32" style="width: 50px; height: 50px; margin: 15px 0 0 0 ; ">
                                     </a>
                                     <div style="width: 100%;">
                                         <div class="post-row">
@@ -787,7 +773,7 @@ editModal.addEventListener('hidden.bs.modal', function () {
                     });
                 } catch (error) {
                     console.error('Error posting comment:', error);
-                    showAlert('Error posting comment: ' + error.message);
+                     showAlert('Error posting comment: ' + error.message);
                 }
             }
 
@@ -826,7 +812,7 @@ editModal.addEventListener('hidden.bs.modal', function () {
                     await loadComments(currentPostId);
                 } catch (error) {
                     console.error('Error updating comment:', error);
-                    showAlert('Error updating comment: ' + error.message);
+                     showAlert('Error updating comment: ' + error.message);
                 }
             }
 

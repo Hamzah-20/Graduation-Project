@@ -296,7 +296,7 @@ jj{
                                 
                                 <div class="form-group mt-4">
                                     <label for="projectDescription">Description :</label>
-                                    <textarea id="projectDescription" class="form-control" rows="3" name="projectDescription"></textarea>
+                                    <textarea id="projectDescription" class="form-control" rows="3" name="projectDescription" required></textarea>
                                 </div>
                             </div>
                         </div>
@@ -312,7 +312,7 @@ jj{
                         <div id="collapseUpload" class="accordion-collapse collapse" data-bs-parent="#projectAccordion">
                             <div class="accordion-body">
                                 <div class="file-upload-container">
-                                    <input type="file" id="projectFiles" class="file-input" multiple name="projectFiles" accept=".pdf,.doc,.docx,.zip">
+                                    <input type="file" id="projectFiles" class="file-input" multiple name="projectFiles" accept=".pdf,.doc,.docx,.zip" required>
                                     <label for="projectFiles" class="file-upload-label">
                                         <div class="upload-icon">
                                             <i class="fas fa-cloud-upload-alt"></i>
@@ -338,7 +338,7 @@ jj{
                         <div id="collapseImageUpload" class="accordion-collapse collapse" data-bs-parent="#projectAccordion">
                             <div class="accordion-body">
                                 <div class="file-upload-container">
-                                    <input type="file" id="imageFiles" class="file-input" accept=".jpg,.jpeg,.png,.gif" multiple name="projectImages">
+                                    <input type="file" id="imageFiles" class="file-input" accept=".jpg,.jpeg,.png,.gif" multiple name="projectImages" required>
                                     <label for="imageFiles" class="file-upload-label">
                                         <div class="upload-icon">
                                             <i class="fas fa-image"></i>
@@ -596,18 +596,6 @@ jj{
                                                 <span>Computer Science</span>
                                             </label>
                                         </div>
-
-                                         <!-- Artificial Intelligence -->
-                                        <div class="major-option">
-                                            <label class="custom-checkbox">
-                                                <input type="checkbox" id="majorAI" value="data-science" name="major">
-                                                <svg viewBox="0 0 64 64" height="1.5em" width="1.5em">
-                                                    <path d="M 0 16 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 16 L 32 48 L 64 16 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 16" 
-                                                          pathLength="575.0541381835938" class="path"></path>
-                                                </svg>
-                                                <span>Artificial Intelligence</span>
-                                            </label>
-                                        </div>
                                         
                                         <!-- Software Engineering -->
                                         <div class="major-option">
@@ -633,7 +621,17 @@ jj{
                                             </label>
                                         </div>
                                         
-                                       
+                                        <!-- Artificial Intelligence -->
+                                        <div class="major-option">
+                                            <label class="custom-checkbox">
+                                                <input type="checkbox" id="majorAI" value="data-science" name="major">
+                                                <svg viewBox="0 0 64 64" height="1.5em" width="1.5em">
+                                                    <path d="M 0 16 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 16 L 32 48 L 64 16 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 16" 
+                                                          pathLength="575.0541381835938" class="path"></path>
+                                                </svg>
+                                                <span>Artificial Intelligence</span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                         <label class="label">

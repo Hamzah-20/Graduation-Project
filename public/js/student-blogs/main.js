@@ -480,8 +480,6 @@ function editPost(postId) {
     window.location.href = `/edit-blog?id=${postId}`;
 }
 
-
-
 async function deletePost(postId) {
     if (!confirm('Are you sure you want to delete this post?')) {
         return;

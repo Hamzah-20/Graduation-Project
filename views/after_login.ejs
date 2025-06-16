@@ -396,8 +396,8 @@
           <script src="/js/after_login/main.js"></script>
     <!-- Custom Script -->
     <script>
-        $(document).ready(function() {
-           $('#hero-slider').owlCarousel({
+        $(document).ready(function () {
+    $('#hero-slider').owlCarousel({
         loop: true,
         margin: 0,
         nav: true,
@@ -405,15 +405,10 @@
         dots: false,
         smartSpeed: 3000,
         navText: ['PREV', 'NEXT'],
-        autoplay: true,          // Enable autoplay
-        autoplayTimeout: 6000,   // 3 seconds between transitions
-        autoplayHoverPause: true // Pause on hover
     });
-
-          document.addEventListener("DOMContentLoaded", function() {
+           document.addEventListener("DOMContentLoaded", function() {
         const navLinks = document.querySelectorAll(".nav-link");
         const navCollapse = document.querySelector(".navbar-collapse");
-
         navLinks.forEach(function(link) {
             link.addEventListener("click", function() {
                 if (navCollapse.classList.contains("show")) {
@@ -421,7 +416,7 @@
                 }
             });
         });
-    });
+         });
         });
     </script>
   </body>

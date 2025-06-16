@@ -126,7 +126,7 @@
 
                                 <!-- Action Buttons -->
                                 <div class="buttons-containerr mt-4">
-                                    <button class="btn-submit" type="submit">
+                                    <button class="btn-submit" type="button">
                                         <span class="text-container">
                                             <span class="text">Add</span>
                                         </span>
@@ -200,7 +200,7 @@
 
                 <!-- Action Buttons -->
                 <div class="buttons-containerr mt-4">
-                    <button class="btn-submit" type="submit">
+                    <button class="btn-submit" id="banButton" type="button">
                         <span class="text-container">
                             <span class="text">Band</span>
                         </span>
@@ -265,66 +265,50 @@ function showNotification(message, type = 'success') {
 }
 </script>
 <script>
-document.querySelector(".btn-submit").addEventListener("click", async () => {
-    const email = document.getElementById("projectTitle").value;
-    if (!email) {
-        showNotification("Please enter an email", "error");
-        return;
-    }
-
-    const response = await fetch("/send-admin-invite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-    });
-
-    const data = await response.json();
-    if (data.success) {
-        showNotification("Invitation sent successfully ✅");
-    } else {
-        showNotification(data.message || "Something went wrong", "error");
-    }
-});
-</script>
-<script>
         let currentAction = null;
         let actionData = null;
 
         // Add Admin Handler
-        document.querySelector(".swiper-slide:first-child .btn-submit").addEventListener("click", async (e) => {
-            e.preventDefault();
-            const email = document.getElementById("projectTitle").value;
-            if (!email) {
-                showNotification("Please enter an email", "error");
-                return;
-            }
-
-            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-            document.querySelector('#confirmationModal .modal-body').textContent = 
-                `Are you sure you want to add ${email} as an admin?`;
-            currentAction = 'addAdmin';
-            actionData = { email };
-            modal.show();
-        });
+       document.querySelector(".swiper-slide:first-child .btn-submit")
+  .addEventListener("click", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("projectTitle").value;
+    if (!email) {
+      showNotification("Please enter an email", "error");
+      return;
+    }
+    const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    document.querySelector('#confirmationModal .modal-body').textContent =
+      `Are you sure you want to add ${email} as an admin?`;
+    currentAction = 'addAdmin';
+    actionData = { email };
+    modal.show();
+});
 
         // Ban User Handler
-        document.getElementById("banForm").addEventListener("submit", (e) => {
-            e.preventDefault();
-            const userId = document.getElementById("userEmailDropdown").value;
-            const reason = document.getElementById("banReason").value;
-            
-            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-            document.querySelector('#confirmationModal .modal-body').textContent = 
-                `Are you sure you want to ban this user? Reason: ${reason || 'No reason provided'}`;
-            currentAction = 'banUser';
-            actionData = { userId, reason };
-            modal.show();
-        });
+      document.getElementById("banButton").addEventListener("click", (e) => {
+  e.preventDefault();
+  const userId = document.getElementById("userEmailDropdown").value;
+  const reason = document.getElementById("banReason").value;
+
+  if (!userId) {
+    showNotification("Please select a user", "error");
+    return;
+  }
+
+  const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+  document.querySelector('#confirmationModal .modal-body').textContent =
+    `Are you sure you want to ban this user? Reason: ${reason || 'No reason provided'}`;
+  currentAction = 'banUser';
+actionData = { email: userId, banReason: reason };
+  modal.show();
+});
 
         // Confirm Action Handler
-        document.getElementById("confirmAction").addEventListener("click", async () => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
-            modal.hide();
+       document.getElementById("confirmAction").addEventListener("click", async () => {
+  const modal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+  modal.hide();
+           
 
             if (currentAction === 'addAdmin') {
                 const response = await fetch("/send-admin-invite", {
@@ -335,29 +319,38 @@ document.querySelector(".btn-submit").addEventListener("click", async () => {
                 const data = await response.json();
                 if (data.success) {
                     showNotification("Invitation sent successfully ✅");
+                     document.getElementById("projectTitle").value = "";
                 } else {
                     showNotification(data.message || "Something went wrong", "error");
                 }
             } 
             else if (currentAction === 'banUser') {
-                const response = await fetch("/ban-user", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(actionData)
-                });
+                console.log("Ban action triggered with data:", actionData);
+                const response = await fetch("/ban", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(actionData)
+});
+
                 const data = await response.json();
-                if (data.success) {
-                    showNotification("User banned successfully");
-                    document.getElementById("banForm").reset();
-                } else {
-                    showNotification(data.message || "Ban failed", "error");
-                }
+if (response.ok) {
+  showNotification(data.message || "User banned successfully");
+      document.getElementById("banForm").reset();
+
+} else {
+  showNotification(data.error || data.message || "Ban failed", "error");
+}
+
             }
 
             currentAction = null;
             actionData = null;
         });
-
+document
+  .querySelector('#confirmationModal .btn-secondary')
+  .addEventListener('click', () => {
+    showNotification('Action cancelled', 'error');
+});
 
     </script>
 </body>

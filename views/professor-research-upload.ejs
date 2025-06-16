@@ -63,12 +63,6 @@
                 <li class="nav-item">
                     <a href="/professor-page" class="nav-link">Prof page </a>
                 </li> 
-                <li class="nav-item">
-                    <a href="/professor-research" class="nav-link">Research</a>
-                </li> 
-                <li class="nav-item">
-                    <a href="#" class="nav-link">Uploud</a>
-                </li> 
             </ul>
         </div>
     </div>
@@ -96,6 +90,9 @@
             <h2 class="text-center mb-4" style="color: #526ebb;">Uploade file</h2>
             <div class="accordion" id="faqAccordion">
       <form action="/professor-research-upload" method="POST" enctype="multipart/form-data">
+        <% if (error) { %>
+    <div class="error alert alert-danger text-center my-3"><%= error %></div>
+  <% } %>
               <!-- Q1 -->
               <div class="accordion-item">
                 <h2 class="accordion-header" id="headingOne">
@@ -183,7 +180,8 @@
                         <tr>
                             <th> <label>Project</label> </th>
                             <td><input type="file" id="file" class="cc" name="file" accept=".pdf,.doc,.docx" /> <label for="file" class="ll" id="file-name-label" style="width: 250px; padding: 75px 0 0 0;">Upload File</label>  </td>
-                        </tr>
+                             
+                          </tr>
     </table>
 </div>
 </div>
