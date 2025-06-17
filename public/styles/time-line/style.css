@@ -18,6 +18,12 @@ body {
     font-family: "Pacifico", sans-serif;
 }
 
+.masfofa span{
+    font-size: 25px;
+    font-style: italic;
+    color: #523DB9;
+}
+
 .profile-name {
     margin-left: 10px;
     color: azure;

@@ -877,7 +877,7 @@ app.post('/institutions', async (req, res) => {
       // ناخد القيم من البدي ونحولها للـ lowercase
       let { institutionType, facultyName, universityCode } = req.body;
       universityCode   = universityCode.trim().toLowerCase();
-      facultyName      = facultyName.trim().toLowerCase();
+      facultyName      = facultyName.trim();
       institutionType  = institutionType.trim();
 
       const imagePath = req.file

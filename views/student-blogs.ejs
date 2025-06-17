@@ -89,6 +89,11 @@
                         <a href="/student-page" class="nav-link">Student Page</a>
                     </li>  
                 </ul>
+                 <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link">Student QA</a>
+                    </li>  
+                </ul>
                
             </div>
         </div>
@@ -111,7 +116,7 @@
                             <div class="post-input-container">
                                 <div class="container ff">
                                     <div class="wave-group">
-                                        <input required="" type="text" class="input" id="blog-title">
+                                        <input required="" type="text" class="input" id="blog-title" autocomplete="off">
                                         <span class="bar"></span>
                                         <label class="label">
                                             <span class="label-char" style="--index: 0">T</span>
@@ -129,7 +134,7 @@
 
                                 <div class="container">
                                     <div class="wave-group">
-                                        <textarea required class="input wave-textarea" rows="1" id="blog-content"></textarea>
+                                        <textarea required class="input wave-textarea" rows="1" id="blog-content" autocomplete="off"></textarea>
                                         <span class="bar"></span>
                                         <label class="label">
                                             <span class="label-char" style="--index: 0">T</span>
@@ -200,7 +205,7 @@
                                 
                                     <div class="post-title"><%= blog.blog_title %></div>
                                     <div class="transparent-box">
-                                        <p class="post-text"><%= blog.blog_content %></p>
+                                        <p class="post-text" style="white-space: pre-line;"><%= blog.blog_content %></p>
                                         <% if (blog.blog_image) { %>
                                             <div class="post-image-container">
                                                 <img src="<%= blog.blog_image %>" alt="Blog image" class="post-image" onclick="showImageModal(this.src)">
@@ -380,7 +385,43 @@
         </section>
         
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <script>
+          // Auto-expanding textarea for blog content
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('blog-content');
+    if (textarea) {
+        // Set initial height (minimum height)
+        textarea.style.height = 'auto';
+        textarea.style.height = (textarea.scrollHeight) + 'px';
         
+        textarea.addEventListener('input', function() {
+            // Reset height to auto to properly calculate scrollHeight
+            this.style.height = 'auto';
+            
+            // Calculate new height - using a smaller increment (50% of line height)
+            const lineHeight = parseInt(window.getComputedStyle(this).lineHeight);
+            const minHeight = lineHeight; // Minimum height (1 line)
+            const scrollHeight = this.scrollHeight;
+            
+            // Use a smaller growth increment (0.5 times line height instead of full line height)
+            const growthIncrement = lineHeight * 0.1;
+            
+            // Calculate new height with smaller increments
+            const newHeight = Math.max(minHeight, scrollHeight + growthIncrement);
+            
+            this.style.height = newHeight + 'px';
+        });
+        
+        // Also handle paste events
+        textarea.addEventListener('paste', function() {
+            setTimeout(() => {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            }, 0);
+        });
+    }
+});
+        </script>
         <script>
             // Toast initialization
 const reportToast = new bootstrap.Toast(document.getElementById('reportToast'));

@@ -950,3 +950,7 @@ hr {
 .hig{
 	min-height: 579px;
 }
+.enter-pressed {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}

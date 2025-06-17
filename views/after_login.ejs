@@ -103,8 +103,8 @@
            <div class="container">
               <div class="row">
                 <div class="col-lg-4 col-md-6 offset-lg-8">
-                 <h6 class="text-uppercase text-white">Benefit from the academic expertise gained from university professors</h6>
-                 <h1 class="fs-1 my-3 text-white text-uppercase">Gain valuable knowledge from the experiences of<br/> university professors</h1>
+                 <h6 class="text-uppercase text-white">Benefit from the academic expertise gained from university Faculty Members</h6>
+                 <h1 class="fs-1 my-3 text-white text-uppercase">Gain valuable knowledge from the experiences of<br/> university Faculty Members</h1>
                  <a href="<%= whereto %>" class="btn btn-brand">Get Started</a>
                 </div>
               </div>
@@ -249,7 +249,7 @@
                 </h2>
                 <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                   <div class="accordion-body">
-                    We provide you with the original explanations from the professors, and we also offer student explanations in a simplified style.
+                    We provide you with the original explanations from the Faculty Members, and we also offer student explanations in a simplified style.
                   </div>
                 </div>
               </div>
@@ -395,29 +395,29 @@
 <!-- Custom Script -->
           <script src="/js/after_login/main.js"></script>
     <!-- Custom Script -->
-    <script>
-        $(document).ready(function () {
-    $('#hero-slider').owlCarousel({
-        loop: true,
-        margin: 0,
-        nav: true,
-        items: 1,
-        dots: false,
-        smartSpeed: 3000,
-        navText: ['PREV', 'NEXT'],
+   <!-- Move this script right before the closing </body> tag -->
+<script>
+    $(document).ready(function() {
+        var heroSlider = $('#hero-slider');
+        
+        heroSlider.owlCarousel({
+            loop: true,
+            margin: 0,
+            nav: true,
+            items: 1,
+            dots: false,
+            smartSpeed: 3000,          
+            navText: ['PREV', 'NEXT'],
+            autoplay: true,             
+            autoplayTimeout: 6000,      
+            autoplayHoverPause: false,  
+            autoplaySpeed: 3000,        
+            responsiveRefreshRate: 0     
+        });
+
+        // Force autoplay to start immediately
+        heroSlider.trigger('play.owl.autoplay');
     });
-           document.addEventListener("DOMContentLoaded", function() {
-        const navLinks = document.querySelectorAll(".nav-link");
-        const navCollapse = document.querySelector(".navbar-collapse");
-        navLinks.forEach(function(link) {
-            link.addEventListener("click", function() {
-                if (navCollapse.classList.contains("show")) {
-                    new bootstrap.Collapse(navCollapse, { toggle: true });
-                }
-            });
-        });
-         });
-        });
-    </script>
+</script>
   </body>
 </html>

@@ -28,7 +28,7 @@
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-1 fixed-top">
     <div class="container">
         <a class="navbar-brand" href="/after_login">
-           <p class="masfofa">Masfofa<span style="color: purple;">!</span></p>
+           <p class="masfofa">Masfofa<span style="color: #523DB9;">!</span></p>
         </a>
         <button class="navbar-toggler" 
                 type="button" 
@@ -60,6 +60,16 @@
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a href="/student-page" class="nav-link">Student page</a>
+                </li>  
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="/profile-page" class="nav-link">Profile </a>
+                </li>  
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link">Edit Profile</a>
                 </li>  
             </ul>
         </div>
@@ -236,6 +246,7 @@
 <tr>
     <th><label>New Photo</label></th>
     <th>
+        <div style="margin: 0 50px 0 0 ;">
         <!-- Hidden file input -->
         <input type="file" id="file" class="cc" name="profileimage" accept="image/jpeg,image/jpg,image/png,image/gif" style="display: none;" />
         
@@ -254,6 +265,7 @@
         <!-- Error message -->
         <div id="file-error" class="text-danger" style="display: none;">
             Unsupported file type. Please upload a JPEG, JPG, PNG, or GIF file.
+        </div>
         </div>
     </th>
 </tr>

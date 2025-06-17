@@ -27,8 +27,8 @@
 
         <div class="containe" style="margin: 50px 0 0 0 ;">
     <img src="<%= userData.profileimage %>" alt="Photo">
-    <h1><%= userData.fname %> <%= userData.lname %></h1>
-</div>
+    <h1 style="font-size: 50px;"><%= userData.fname %> <%= userData.lname %></h1>
+        </div>
     
 
 
@@ -70,13 +70,18 @@
                 </li>  
             </ul>
             <ul class="navbar-nav">
+                  <li class="nav-item">
+                      <a href="/professor-page" class="nav-link">Researcher page</a>
+                  </li>  
+              </ul>
+            <ul class="navbar-nav">
                 <li class="nav-item">
                     <a href="/profile-page" class="nav-link">Profile</a>
                 </li>  
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a href="#here" class="nav-link">edit profile</a>
+                    <a class="nav-link">edit profile</a>
                 </li>  
             </ul>
         </div>
@@ -159,15 +164,8 @@
                 <th> Email </th>
                 <th> <div class="container">
            <div class="wave-group">
-               <input required type="text" class="input" required value=<%= userData.email %> name="email">
+               <input required type="text" class="input" required value=<%= userData.email %> name="email" readonly>
                <span class="bar"></span>
-               <label class="label">
-                   <span class="label-char" style="--index: 0">E</span>
-                   <span class="label-char" style="--index: 1">m</span>
-                   <span class="label-char" style="--index: 2">a</span>
-                   <span class="label-char" style="--index: 3">i</span>
-                   <span class="label-char" style="--index: 4">l</span>
-               </label>
            </div>
        </div>
  </th>
@@ -285,6 +283,7 @@
     <th><label>New Photo</label></th>
     <th>
         <!-- Hidden file input -->
+         <div style="margin: 0 50px 0 0 ;">
         <input type="file" id="file" class="cc" name="profileimage" accept="image/jpeg,image/jpg,image/png,image/gif" style="display: none;" />
         
         <!-- Circular upload control -->
@@ -293,7 +292,7 @@
                 <i class="bi bi-cloud-arrow-up upload-icon"></i>
                 <span class="upload-text">Upload Photo</span>
             </div>
-            <img id="image-preview" class="image-preview" src="" alt="Image Preview" />
+            <img id="image-preview" class="image-preview" src="" alt="Image Preview"  />
         </label>
         
         <!-- File name display -->
@@ -302,6 +301,7 @@
         <!-- Error message -->
         <div id="file-error" class="text-danger" style="display: none;">
             Unsupported file type. Please upload a JPEG, JPG, PNG, or GIF file.
+        </div>
         </div>
     </th>
 </tr>
@@ -326,7 +326,7 @@
                       <div class="mb-3">
                           <label for="whatsapp-url" class="form-label">Your URL</label>
                           <div class="input-group">
-                              <span class="input-group-text" id="whatsapp-addon">https://www.whatsapp.com/users/</span>
+                              <span class="input-group-text" id="whatsapp-addon" style="margin: 0 0 0 0;">https://www.whatsapp.com/users/</span>
                               <input type="text" class="form-control" id="whatsapp-url" aria-describedby="whatsapp-addon" style="height: 40px;" name="whatsapp" value=<%= userData.whatsapp %>>
                           </div>
                           <div class="form-text" id="whatsapp-help">Input your WhatsApp username (e.g. johnsmith).</div>
@@ -339,7 +339,7 @@
                       <div class="mb-3">
                           <label for="instagram-url" class="form-label">Your URL</label>
                           <div class="input-group">
-                              <span class="input-group-text" id="instagram-addon">https://www.instagram.com/users/</span>
+                              <span class="input-group-text" id="instagram-addon" style="margin: 0 0 0 0;">https://www.instagram.com/users/</span>
                               <input type="text" class="form-control" id="instagram-url" aria-describedby="instagram-addon" style="height: 40px;" name="instagram" value=<%= userData.instagram %>>
                           </div>
                           <div class="form-text" id="instagram-help">Input your Instagram username (e.g. johnsmith).</div>
@@ -352,7 +352,7 @@
                       <div class="mb-3">
                           <label for="facebook-url" class="form-label">Your URL</label>
                           <div class="input-group">
-                              <span class="input-group-text" id="facebook-addon">https://www.facebook.com/users/</span>
+                              <span class="input-group-text" id="facebook-addon" style="margin: 0 0 0 0;">https://www.facebook.com/users/</span>
                               <input type="text" class="form-control" id="facebook-url" aria-describedby="facebook-addon" style="height: 40px;" name="facebook" value=<%= userData.facebook %>>
                           </div>
                           <div class="form-text" id="facebook-help">Input your Facebook username (e.g. johnsmith).</div>

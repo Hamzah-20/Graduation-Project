@@ -93,8 +93,8 @@
            <div class="container">
               <div class="row">
                 <div class="col-lg-4 col-md-6 offset-lg-8">
-                 <h6 class="text-uppercase text-white">Benefit from the academic expertise gained from university professors</h6>
-                 <h1 class="fs-1 my-3 text-white text-uppercase">Gain valuable knowledge from the experiences of<br/> university professors</h1>
+                 <h6 class="text-uppercase text-white">Benefit from the academic expertise gained from university Faculty Members</h6>
+                 <h1 class="fs-1 my-3 text-white text-uppercase">Gain valuable knowledge from the experiences of<br/> university Faculty Members</h1>
                  <a href="/login" class="btn btn-brand">Get Started</a>
                 </div>
               </div>
@@ -238,7 +238,7 @@
                 </h2>
                 <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                   <div class="accordion-body">
-                    We provide you with the original explanations from the professors, and we also offer student explanations in a simplified style.
+                    We provide you with the original explanations from the Faculty Members, and we also offer student explanations in a simplified style.
                   </div>
                 </div>
               </div>
@@ -398,36 +398,29 @@
     <script src="/js/home-page/owl.carousel.min.js"></script>
 
     <!-- Custom Script -->
-    <script>
-        $(document).ready(function() {
-            $('#hero-slider').owlCarousel({
-        loop: true,
-        margin: 0,
-        nav: true,
-        items: 1,
-        dots: false,
-        smartSpeed: 3000,
-        navText: ['PREV', 'NEXT'],
-        autoplay: true,          // Enable autoplay
-        autoplayTimeout: 6000,   // 3 seconds between transitions
-        autoplayHoverPause: true // Pause on hover
-    });
-
-            // Close navbar on link click in mobile view
-            document.addEventListener("DOMContentLoaded", function() {
-                const navLinks = document.querySelectorAll(".nav-link");
-                const navCollapse = document.querySelector(".navbar-collapse");
-
-                navLinks.forEach(function(link) {
-                    link.addEventListener("click", function() {
-                        if (navCollapse.classList.contains("show")) {
-                            new bootstrap.Collapse(navCollapse, { toggle: true });
-                        }
-                    });
-                });
-            });
+<script>
+    $(document).ready(function() {
+        var heroSlider = $('#hero-slider');
+        
+        heroSlider.owlCarousel({
+            loop: true,
+            margin: 0,
+            nav: true,
+            items: 1,
+            dots: false,
+            smartSpeed: 3000,          // Transition speed (1 second)
+            navText: ['PREV', 'NEXT'],
+            autoplay: true,             // Enable autoplay
+            autoplayTimeout: 6000,      // 6 seconds per slide (normal speed)
+            autoplayHoverPause: false,  // Disable pause on hover
+            autoplaySpeed: 3000,        // Speed of slide transitions
+            responsiveRefreshRate: 0     // Prevent interruptions on resize
         });
-    </script>
+
+        // Force autoplay to start immediately
+        heroSlider.trigger('play.owl.autoplay');
+    });
+</script>
 <script>
 document.addEventListener('keydown', function(event) {
     if(event.ctrlKey && event.shiftKey && (event.key === 'a' || event.key === 'A')) {
